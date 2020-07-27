@@ -30,6 +30,12 @@ test1 = case decode S.sample1 of
   Nothing -> fail "could not decode test1"
   Just (Message attrs)
     | notElem (DestinationPort 80) attrs -> fail "bad destination port"
+    | notElem (InitiatorPackets 11) attrs -> fail "bad initiator packets"
+    | notElem (ResponderPackets 6) attrs -> fail "bad responder packets"
+    | notElem (InitiatorBytes 7023) attrs -> fail "bad initiator bytes"
+    | notElem (ResponderBytes 875) attrs -> fail "bad responder bytes"
+    | notElem (IngressInterface (bytes "Outside")) attrs -> fail "bad ingress interface"
+    | notElem (IngressZone (bytes "My-Outside")) attrs -> fail "bad ingress zone"
     | otherwise -> pure ()
 
 bytes :: String -> Bytes

@@ -37,15 +37,24 @@ data Attribute
   | DestinationIp !IPv4
   | SourcePort !Word16
   | DestinationPort !Word16
+  | InitiatorBytes !Word64
+  | InitiatorPackets !Word64
+  | ResponderBytes !Word64
+  | ResponderPackets !Word64
   | Protocol {-# UNPACK #-} !Bytes
-  | IngressInterface {-# UNPACK #-} !Bytes
-  | EgressInterface {-# UNPACK #-} !Bytes
   | IngressZone {-# UNPACK #-} !Bytes
   | EgressZone {-# UNPACK #-} !Bytes
+  | IngressInterface {-# UNPACK #-} !Bytes
+  | EgressInterface {-# UNPACK #-} !Bytes
   | AccessControlRuleAction {-# UNPACK #-} !Bytes
   | ApplicationProtocol {-# UNPACK #-} !Bytes
-  | HttpResponse {-# UNPACK #-} !Bytes
+  | HttpResponse {-# UNPACK #-} !Word64
+  | ConnectionDuration {-# UNPACK #-} !Word64
+  | HttpReferrer {-# UNPACK #-} !Bytes
   | ReferencedHost {-# UNPACK #-} !Bytes
+  | AcPolicy {-# UNPACK #-} !Bytes
+  | NapPolicy {-# UNPACK #-} !Bytes
+  | UserAgent {-# UNPACK #-} !Bytes
   deriving stock (Eq,Show)
 
 decode :: Bytes -> Maybe Message
@@ -73,6 +82,42 @@ parserKeyValue !b0 = do
            txt <- Parser.takeWhile (/=0x2C)
            let !x = ApplicationProtocol txt
            Parser.effect (Builder.push x b0)
+    16 | Bytes.equalsCString (Ptr "InitiatorPackets"#) key -> do
+           !n <- Latin.decWord64 ()
+           let !x = InitiatorPackets n
+           Parser.effect (Builder.push x b0)
+       | Bytes.equalsCString (Ptr "ResponderPackets"#) key -> do
+           !n <- Latin.decWord64 ()
+           let !x = ResponderPackets n
+           Parser.effect (Builder.push x b0)
+       | Bytes.equalsCString (Ptr "IngressInterface"#) key -> do
+           txt <- Parser.takeWhile (/=0x2C)
+           let !x = IngressInterface txt
+           Parser.effect (Builder.push x b0)
+    15 | Bytes.equalsCString (Ptr "EgressInterface"#) key -> do
+           txt <- Parser.takeWhile (/=0x2C)
+           let !x = EgressInterface txt
+           Parser.effect (Builder.push x b0)
+    14 | Bytes.equalsCString (Ptr "InitiatorBytes"#) key -> do
+           !n <- Latin.decWord64 ()
+           let !x = InitiatorBytes n
+           Parser.effect (Builder.push x b0)
+       | Bytes.equalsCString (Ptr "ResponderBytes"#) key -> do
+           !n <- Latin.decWord64 ()
+           let !x = ResponderBytes n
+           Parser.effect (Builder.push x b0)
+    11 | Bytes.equalsCString (Ptr "IngressZone"#) key -> do
+           txt <- Parser.takeWhile (/=0x2C)
+           let !x = IngressZone txt
+           Parser.effect (Builder.push x b0)
+    10 | Bytes.equalsCString (Ptr "EgressZone"#) key -> do
+           txt <- Parser.takeWhile (/=0x2C)
+           let !x = EgressZone txt
+           Parser.effect (Builder.push x b0)
+    9 | Bytes.equalsCString (Ptr "UserAgent"#) key -> do
+          !addr <- takeWhileUserAgent
+          let !x = UserAgent addr
+          Parser.effect (Builder.push x b0)
     7 | Bytes.equalsCString (Ptr "SrcPort"#) key -> do
           !addr <- Latin.decWord16 ()
           let !x = SourcePort addr
@@ -101,6 +146,26 @@ parserKeyValue !b0 = do
     False -> do
       Latin.char2 () ',' ' '
       parserKeyValue b1 
+
+-- Parsing the User Agent is terribly because user agents often
+-- have commas in them. So, we use a terrible hack where we look
+-- for a comma that is followed by a space and a capital C, and
+-- that comma marks the end of the user agent. This works because
+-- User Agent is followed by Client.
+takeWhileUserAgent :: Parser () s Bytes
+takeWhileUserAgent = do
+  start <- Unsafe.cursor
+  let go = do
+        txt <- Latin.skipTrailedBy () ','
+        _ <- Latin.char () ' '
+        Parser.peek' () >>= \case
+          0x43 -> Unsafe.unconsume 2
+          c -> go
+  go
+  -- After go, we are right before the comma.
+  end <- Unsafe.cursor
+  arr <- Unsafe.expose
+  pure $! Bytes arr start (end - start)
 
 skipSyslogPriority :: Parser () s ()
 skipSyslogPriority = Latin.trySatisfy (== '<') >>= \case

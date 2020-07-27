@@ -18,7 +18,7 @@ library
     , array-builder >=0.1 && <0.2
     , array-chunks >=0.1.1 && <0.2
     , base >=4.12 && <5
-    , bytesmith >= 0.3.1 && <0.4
+    , bytesmith >= 0.3.7 && <0.4
     , byteslice >= 0.2 && <0.3
     , ip >=1.7 && <1.8
     , primitive >= 0.7 && <0.8
