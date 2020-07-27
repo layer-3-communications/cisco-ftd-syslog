@@ -33,27 +33,29 @@ newtype Message = Message
   }
 
 data Attribute
-  = SourceIp !IPv4
+  = AcPolicy {-# UNPACK #-} !Bytes
+  | AccessControlRuleAction {-# UNPACK #-} !Bytes
+  | AccessControlRuleName {-# UNPACK #-} !Bytes
+  | ApplicationProtocol {-# UNPACK #-} !Bytes
+  | ConnectionDuration {-# UNPACK #-} !Word64
   | DestinationIp !IPv4
-  | SourcePort !Word16
   | DestinationPort !Word16
+  | EgressInterface {-# UNPACK #-} !Bytes
+  | EgressZone {-# UNPACK #-} !Bytes
+  | HttpReferrer {-# UNPACK #-} !Bytes
+  | HttpResponse {-# UNPACK #-} !Word64
+  | IngressInterface {-# UNPACK #-} !Bytes
+  | IngressZone {-# UNPACK #-} !Bytes
   | InitiatorBytes !Word64
   | InitiatorPackets !Word64
+  | NapPolicy {-# UNPACK #-} !Bytes
+  | Protocol {-# UNPACK #-} !Bytes
+  | ReferencedHost {-# UNPACK #-} !Bytes
   | ResponderBytes !Word64
   | ResponderPackets !Word64
-  | Protocol {-# UNPACK #-} !Bytes
-  | IngressZone {-# UNPACK #-} !Bytes
-  | EgressZone {-# UNPACK #-} !Bytes
-  | IngressInterface {-# UNPACK #-} !Bytes
-  | EgressInterface {-# UNPACK #-} !Bytes
-  | AccessControlRuleAction {-# UNPACK #-} !Bytes
-  | ApplicationProtocol {-# UNPACK #-} !Bytes
-  | HttpResponse {-# UNPACK #-} !Word64
-  | ConnectionDuration {-# UNPACK #-} !Word64
-  | HttpReferrer {-# UNPACK #-} !Bytes
-  | ReferencedHost {-# UNPACK #-} !Bytes
-  | AcPolicy {-# UNPACK #-} !Bytes
-  | NapPolicy {-# UNPACK #-} !Bytes
+  | SourceIp !IPv4
+  | SourcePort !Word16
+  | UrlCategory {-# UNPACK #-} !Bytes
   | UserAgent {-# UNPACK #-} !Bytes
   deriving stock (Eq,Show)
 
@@ -77,6 +79,10 @@ parserKeyValue !b0 = do
     23 | Bytes.equalsCString (Ptr "AccessControlRuleAction"#) key -> do
            txt <- Parser.takeWhile (/=0x2C)
            let !x = AccessControlRuleAction txt
+           Parser.effect (Builder.push x b0)
+    21 | Bytes.equalsCString (Ptr "AccessControlRuleName"#) key -> do
+           txt <- Parser.takeWhile (/=0x2C)
+           let !x = AccessControlRuleName txt
            Parser.effect (Builder.push x b0)
     19 | Bytes.equalsCString (Ptr "ApplicationProtocol"#) key -> do
            txt <- Parser.takeWhile (/=0x2C)
@@ -109,6 +115,10 @@ parserKeyValue !b0 = do
     11 | Bytes.equalsCString (Ptr "IngressZone"#) key -> do
            txt <- Parser.takeWhile (/=0x2C)
            let !x = IngressZone txt
+           Parser.effect (Builder.push x b0)
+       | Bytes.equalsCString (Ptr "UrlCategory"#) key -> do
+           txt <- Parser.takeWhile (/=0x2C)
+           let !x = UrlCategory txt
            Parser.effect (Builder.push x b0)
     10 | Bytes.equalsCString (Ptr "EgressZone"#) key -> do
            txt <- Parser.takeWhile (/=0x2C)
