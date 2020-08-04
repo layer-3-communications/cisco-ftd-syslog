@@ -201,7 +201,7 @@ getInitialDate = do
   Latin.char () 'T'
   h <- Latin.decWord64 ()
   Latin.char () ':'
-  m <- Latin.decWord64 ()
+  mn <- Latin.decWord64 ()
   Latin.char () ':'
   s <- Latin.decWord64 ()
   Latin.char () 'Z'
@@ -213,6 +213,6 @@ getInitialDate = do
     )
     (Chronos.TimeOfDay
       (fromIntegral h)
-      (fromIntegral m)
+      (fromIntegral mn)
       (1_000_000_000 * fromIntegral s)
     )
