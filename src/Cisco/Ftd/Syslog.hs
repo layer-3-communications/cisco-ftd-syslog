@@ -1,6 +1,7 @@
 {-# language BangPatterns #-}
 {-# language DerivingStrategies #-}
 {-# language NamedFieldPuns #-}
+{-# language NumericUnderscores #-}
 {-# language MagicHash #-}
 {-# language LambdaCase #-}
 {-# language DeriveAnyClass #-}
@@ -20,6 +21,7 @@ import Data.Word (Word16,Word64)
 import GHC.Exts (Ptr(Ptr))
 import Net.Types (IPv4)
 
+import qualified Chronos
 import qualified Net.IPv4 as IPv4
 import qualified Data.Builder.ST as Builder
 import qualified Data.Bytes as Bytes
@@ -27,9 +29,9 @@ import qualified Data.Bytes.Parser as Parser
 import qualified Data.Bytes.Parser.Latin as Latin
 import qualified Data.Bytes.Parser.Unsafe as Unsafe
 
--- More fields may be added later.
-newtype Message = Message
-  { attributes :: (Chunks Attribute)
+data Message = Message
+  { time :: !Chronos.Datetime
+  , attributes :: !(Chunks Attribute)
   }
 
 data Attribute
@@ -65,11 +67,11 @@ decode b = Parser.parseBytesMaybe parser b
 parser :: Parser () s Message
 parser = do
   skipSyslogPriority
-  skipInitialDate
+  time <- getInitialDate
   Latin.skipChar1 () ' '
   Parser.cstring () (Ptr "%FTD-1-430003: "#)
   r <- parserKeyValue =<< Parser.effect Builder.new
-  pure Message{attributes=r}
+  pure Message{time,attributes=r}
   
 parserKeyValue :: Builder s Attribute -> Parser () s (Chunks Attribute)
 parserKeyValue !b0 = do
@@ -185,17 +187,32 @@ skipSyslogPriority = Latin.trySatisfy (== '<') >>= \case
   False -> pure ()
 
 -- Dates look like: YYYY-MM-DDTHH:MM:SSZ
-skipInitialDate :: Parser () s ()
-skipInitialDate = do
-  Latin.skipDigits1 ()
+getInitialDate :: Parser () s Chronos.Datetime
+getInitialDate = do
+  y <- Latin.decWord64 ()
   Latin.char () '-'
-  Latin.skipDigits1 ()
+  m' <- Latin.decWord64 ()
+  m <- case m' of
+    0 -> Parser.fail ()
+    x | x > 12 -> Parser.fail ()
+    _ -> pure (m' - 1)
   Latin.char () '-'
-  Latin.skipDigits1 ()
+  d <- Latin.decWord64 ()
   Latin.char () 'T'
-  Latin.skipDigits1 ()
+  h <- Latin.decWord64 ()
   Latin.char () ':'
-  Latin.skipDigits1 ()
+  m <- Latin.decWord64 ()
   Latin.char () ':'
-  Latin.skipDigits1 ()
+  s <- Latin.decWord64 ()
   Latin.char () 'Z'
+  pure $ Chronos.Datetime
+    (Chronos.Date
+      (Chronos.Year (fromIntegral y))
+      (Chronos.Month (fromIntegral m))
+      (Chronos.DayOfMonth (fromIntegral d))
+    )
+    (Chronos.TimeOfDay
+      (fromIntegral h)
+      (fromIntegral m)
+      (1_000_000_000 * fromIntegral s)
+    )

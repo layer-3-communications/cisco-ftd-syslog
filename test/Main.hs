@@ -28,7 +28,7 @@ main = do
 test1 :: IO ()
 test1 = case decode S.sample1 of
   Nothing -> fail "could not decode test1"
-  Just (Message attrs)
+  Just (Message _ attrs)
     | notElem (DestinationPort 80) attrs -> fail "bad destination port"
     | notElem (InitiatorPackets 11) attrs -> fail "bad initiator packets"
     | notElem (ResponderPackets 6) attrs -> fail "bad responder packets"
