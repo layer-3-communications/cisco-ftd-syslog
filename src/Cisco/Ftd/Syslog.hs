@@ -5,6 +5,7 @@
 {-# language MagicHash #-}
 {-# language LambdaCase #-}
 {-# language DeriveAnyClass #-}
+{-# language MultiWayIf #-}
 
 module Cisco.Ftd.Syslog
   ( Message(..)
@@ -79,80 +80,80 @@ parserKeyValue :: Builder s Attribute -> Parser () s (Chunks Attribute)
 parserKeyValue !b0 = do
   key <- Latin.takeTrailedBy () ':'
   Latin.char () ' '
-  b1 <- case key of
-    Patterns.AccessControlRuleAction -> do
-      txt <- Parser.takeWhile (/=0x2C)
-      let !x = AccessControlRuleAction txt
-      Parser.effect (Builder.push x b0)
-    Patterns.AccessControlRuleName -> do
+  b1 <- if
+    | Patterns.isAccessControlRuleAction key -> do
+        txt <- Parser.takeWhile (/=0x2C)
+        let !x = AccessControlRuleAction txt
+        Parser.effect (Builder.push x b0)
+    | Patterns.isAccessControlRuleName key -> do
       txt <- Parser.takeWhile (/=0x2C)
       let !x = AccessControlRuleName txt
       Parser.effect (Builder.push x b0)
-    Patterns.ApplicationProtocol -> do
+    | Patterns.isApplicationProtocol key -> do
       txt <- Parser.takeWhile (/=0x2C)
       let !x = ApplicationProtocol txt
       Parser.effect (Builder.push x b0)
-    Patterns.InitiatorPackets -> do
+    | Patterns.isInitiatorPackets key -> do
       !n <- Latin.decWord64 ()
       let !x = InitiatorPackets n
       Parser.effect (Builder.push x b0)
-    Patterns.ResponderPackets -> do
+    | Patterns.isResponderPackets key -> do
       !n <- Latin.decWord64 ()
       let !x = ResponderPackets n
       Parser.effect (Builder.push x b0)
-    Patterns.IngressInterface -> do
+    | Patterns.isIngressInterface key -> do
       txt <- Parser.takeWhile (/=0x2C)
       let !x = IngressInterface txt
       Parser.effect (Builder.push x b0)
-    Patterns.EgressInterface -> do
+    | Patterns.isEgressInterface key -> do
       txt <- Parser.takeWhile (/=0x2C)
       let !x = EgressInterface txt
       Parser.effect (Builder.push x b0)
-    Patterns.InitiatorBytes -> do
+    | Patterns.isInitiatorBytes key -> do
       !n <- Latin.decWord64 ()
       let !x = InitiatorBytes n
       Parser.effect (Builder.push x b0)
-    Patterns.ResponderBytes -> do
+    | Patterns.isResponderBytes key -> do
       !n <- Latin.decWord64 ()
       let !x = ResponderBytes n
       Parser.effect (Builder.push x b0)
-    Patterns.IngressZone -> do
+    | Patterns.isIngressZone key -> do
       txt <- Parser.takeWhile (/=0x2C)
       let !x = IngressZone txt
       Parser.effect (Builder.push x b0)
-    Patterns.UrlCategory -> do
+    | Patterns.isUrlCategory key -> do
       txt <- Parser.takeWhile (/=0x2C)
       let !x = UrlCategory txt
       Parser.effect (Builder.push x b0)
-    Patterns.EgressZone -> do
+    | Patterns.isEgressZone key -> do
       txt <- Parser.takeWhile (/=0x2C)
       let !x = EgressZone txt
       Parser.effect (Builder.push x b0)
-    Patterns.UserAgent -> do
+    | Patterns.isUserAgent key -> do
       !addr <- takeWhileUserAgent
       let !x = UserAgent addr
       Parser.effect (Builder.push x b0)
-    Patterns.SrcPort -> do
+    | Patterns.isSrcPort key -> do
       !addr <- Latin.decWord16 ()
       let !x = SourcePort addr
       Parser.effect (Builder.push x b0)
-    Patterns.DstPort -> do
+    | Patterns.isDstPort key -> do
       !addr <- Latin.decWord16 ()
       let !x = DestinationPort addr
       Parser.effect (Builder.push x b0)
-    Patterns.Protocol -> do
+    | Patterns.isProtocol key -> do
       txt <- Parser.takeWhile (/=0x2C)
       let !x = Protocol txt
       Parser.effect (Builder.push x b0)
-    Patterns.SrcIP -> do
+    | Patterns.isSrcIP key -> do
       !addr <- IPv4.parserUtf8Bytes ()
       let !x = SourceIp addr
       Parser.effect (Builder.push x b0)
-    Patterns.DstIP -> do
+    | Patterns.isDstIP key -> do
       !addr <- IPv4.parserUtf8Bytes ()
       let !x = DestinationIp addr
       Parser.effect (Builder.push x b0)
-    _ -> do
+    | otherwise -> do
       Parser.skipWhile (/=0x2C)
       pure b0
   Parser.isEndOfInput >>= \case
