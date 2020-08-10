@@ -20,7 +20,9 @@ import Data.Chunks (Chunks)
 import Data.Word (Word16,Word64)
 import GHC.Exts (Ptr(Ptr))
 import Net.Types (IPv4)
+import Data.Bytes.Patterns
 
+import qualified Cisco.Ftd.Syslog.Patterns as Patterns
 import qualified Chronos
 import qualified Net.IPv4 as IPv4
 import qualified Data.Builder.ST as Builder
@@ -77,79 +79,79 @@ parserKeyValue :: Builder s Attribute -> Parser () s (Chunks Attribute)
 parserKeyValue !b0 = do
   key <- Latin.takeTrailedBy () ':'
   Latin.char () ' '
-  b1 <- case Bytes.length key of
-    23 | Bytes.equalsCString (Ptr "AccessControlRuleAction"#) key -> do
-           txt <- Parser.takeWhile (/=0x2C)
-           let !x = AccessControlRuleAction txt
-           Parser.effect (Builder.push x b0)
-    21 | Bytes.equalsCString (Ptr "AccessControlRuleName"#) key -> do
-           txt <- Parser.takeWhile (/=0x2C)
-           let !x = AccessControlRuleName txt
-           Parser.effect (Builder.push x b0)
-    19 | Bytes.equalsCString (Ptr "ApplicationProtocol"#) key -> do
-           txt <- Parser.takeWhile (/=0x2C)
-           let !x = ApplicationProtocol txt
-           Parser.effect (Builder.push x b0)
-    16 | Bytes.equalsCString (Ptr "InitiatorPackets"#) key -> do
-           !n <- Latin.decWord64 ()
-           let !x = InitiatorPackets n
-           Parser.effect (Builder.push x b0)
-       | Bytes.equalsCString (Ptr "ResponderPackets"#) key -> do
-           !n <- Latin.decWord64 ()
-           let !x = ResponderPackets n
-           Parser.effect (Builder.push x b0)
-       | Bytes.equalsCString (Ptr "IngressInterface"#) key -> do
-           txt <- Parser.takeWhile (/=0x2C)
-           let !x = IngressInterface txt
-           Parser.effect (Builder.push x b0)
-    15 | Bytes.equalsCString (Ptr "EgressInterface"#) key -> do
-           txt <- Parser.takeWhile (/=0x2C)
-           let !x = EgressInterface txt
-           Parser.effect (Builder.push x b0)
-    14 | Bytes.equalsCString (Ptr "InitiatorBytes"#) key -> do
-           !n <- Latin.decWord64 ()
-           let !x = InitiatorBytes n
-           Parser.effect (Builder.push x b0)
-       | Bytes.equalsCString (Ptr "ResponderBytes"#) key -> do
-           !n <- Latin.decWord64 ()
-           let !x = ResponderBytes n
-           Parser.effect (Builder.push x b0)
-    11 | Bytes.equalsCString (Ptr "IngressZone"#) key -> do
-           txt <- Parser.takeWhile (/=0x2C)
-           let !x = IngressZone txt
-           Parser.effect (Builder.push x b0)
-       | Bytes.equalsCString (Ptr "UrlCategory"#) key -> do
-           txt <- Parser.takeWhile (/=0x2C)
-           let !x = UrlCategory txt
-           Parser.effect (Builder.push x b0)
-    10 | Bytes.equalsCString (Ptr "EgressZone"#) key -> do
-           txt <- Parser.takeWhile (/=0x2C)
-           let !x = EgressZone txt
-           Parser.effect (Builder.push x b0)
-    9 | Bytes.equalsCString (Ptr "UserAgent"#) key -> do
-          !addr <- takeWhileUserAgent
-          let !x = UserAgent addr
-          Parser.effect (Builder.push x b0)
-    7 | Bytes.equalsCString (Ptr "SrcPort"#) key -> do
-          !addr <- Latin.decWord16 ()
-          let !x = SourcePort addr
-          Parser.effect (Builder.push x b0)
-      | Bytes.equalsCString (Ptr "DstPort"#) key -> do
-          !addr <- Latin.decWord16 ()
-          let !x = DestinationPort addr
-          Parser.effect (Builder.push x b0)
-      | Bytes.equalsCString (Ptr "Protocol"#) key -> do
-          txt <- Parser.takeWhile (/=0x2C)
-          let !x = Protocol txt
-          Parser.effect (Builder.push x b0)
-    5 | Bytes.equalsCString (Ptr "SrcIP"#) key -> do
-          !addr <- IPv4.parserUtf8Bytes ()
-          let !x = SourceIp addr
-          Parser.effect (Builder.push x b0)
-      | Bytes.equalsCString (Ptr "DstIP"#) key -> do
-          !addr <- IPv4.parserUtf8Bytes ()
-          let !x = DestinationIp addr
-          Parser.effect (Builder.push x b0)
+  b1 <- case key of
+    Patterns.AccessControlRuleAction -> do
+      txt <- Parser.takeWhile (/=0x2C)
+      let !x = AccessControlRuleAction txt
+      Parser.effect (Builder.push x b0)
+    Patterns.AccessControlRuleName -> do
+      txt <- Parser.takeWhile (/=0x2C)
+      let !x = AccessControlRuleName txt
+      Parser.effect (Builder.push x b0)
+    Patterns.ApplicationProtocol -> do
+      txt <- Parser.takeWhile (/=0x2C)
+      let !x = ApplicationProtocol txt
+      Parser.effect (Builder.push x b0)
+    Patterns.InitiatorPackets -> do
+      !n <- Latin.decWord64 ()
+      let !x = InitiatorPackets n
+      Parser.effect (Builder.push x b0)
+    Patterns.ResponderPackets -> do
+      !n <- Latin.decWord64 ()
+      let !x = ResponderPackets n
+      Parser.effect (Builder.push x b0)
+    Patterns.IngressInterface -> do
+      txt <- Parser.takeWhile (/=0x2C)
+      let !x = IngressInterface txt
+      Parser.effect (Builder.push x b0)
+    Patterns.EgressInterface -> do
+      txt <- Parser.takeWhile (/=0x2C)
+      let !x = EgressInterface txt
+      Parser.effect (Builder.push x b0)
+    Patterns.InitiatorBytes -> do
+      !n <- Latin.decWord64 ()
+      let !x = InitiatorBytes n
+      Parser.effect (Builder.push x b0)
+    Patterns.ResponderBytes -> do
+      !n <- Latin.decWord64 ()
+      let !x = ResponderBytes n
+      Parser.effect (Builder.push x b0)
+    Patterns.IngressZone -> do
+      txt <- Parser.takeWhile (/=0x2C)
+      let !x = IngressZone txt
+      Parser.effect (Builder.push x b0)
+    Patterns.UrlCategory -> do
+      txt <- Parser.takeWhile (/=0x2C)
+      let !x = UrlCategory txt
+      Parser.effect (Builder.push x b0)
+    Patterns.EgressZone -> do
+      txt <- Parser.takeWhile (/=0x2C)
+      let !x = EgressZone txt
+      Parser.effect (Builder.push x b0)
+    Patterns.UserAgent -> do
+      !addr <- takeWhileUserAgent
+      let !x = UserAgent addr
+      Parser.effect (Builder.push x b0)
+    Patterns.SrcPort -> do
+      !addr <- Latin.decWord16 ()
+      let !x = SourcePort addr
+      Parser.effect (Builder.push x b0)
+    Patterns.DstPort -> do
+      !addr <- Latin.decWord16 ()
+      let !x = DestinationPort addr
+      Parser.effect (Builder.push x b0)
+    Patterns.Protocol -> do
+      txt <- Parser.takeWhile (/=0x2C)
+      let !x = Protocol txt
+      Parser.effect (Builder.push x b0)
+    Patterns.SrcIP -> do
+      !addr <- IPv4.parserUtf8Bytes ()
+      let !x = SourceIp addr
+      Parser.effect (Builder.push x b0)
+    Patterns.DstIP -> do
+      !addr <- IPv4.parserUtf8Bytes ()
+      let !x = DestinationIp addr
+      Parser.effect (Builder.push x b0)
     _ -> do
       Parser.skipWhile (/=0x2C)
       pure b0
