@@ -28,7 +28,7 @@ library
 
 test-suite test
   type: exitcode-stdio-1.0
-  hs-source-dirs: test
+  hs-source-dirs: test, common
   main-is: Main.hs
   other-modules: Sample
   build-depends:
@@ -39,4 +39,18 @@ test-suite test
     , ip
     , text
   ghc-options: -Wall -O2
+  default-language: Haskell2010
+
+benchmark bench
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules: Sample
+  hs-source-dirs: bench, common
+  build-depends:
+    , base
+    , byteslice
+    , cisco-ftd-syslog
+    , gauge
+    , primitive
+  ghc-options: -O2 -Wall
   default-language: Haskell2010

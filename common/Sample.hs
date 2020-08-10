@@ -1,5 +1,6 @@
 module Sample
   ( sample1
+  , sample2
   ) where
 
 import Data.Bytes (Bytes)
@@ -23,3 +24,18 @@ sample1 = Bytes.fromLatinString
   \com/foo/bar, ReferencedHost:\
   \ example.com, URLCategory: Government, URLReputation: Well\
   \ known, URL: http://example.com/foo.aspx"
+
+-- TODO: Are SFIMS and FTD logs really even the same thing?
+sample2 :: Bytes
+sample2 = Bytes.fromLatinString
+  "Mar  2 18:14:17 ccso911-asa-ftd1 SFIMS: Protocol: ICMP, SrcIP:\
+  \ 192.0.2.209, OriginalClientIP: ::, DstIP: 192.0.2.105, ICMPType:\
+  \ Echo Request, ICMPCode: No Code, TCPFlags: 0x0, IngressZone: Zone-Outside,\
+  \ EgressZone: Zone-DMZ, DE: Primary Detection Engine\
+  \ (855f1722-a2c4-10e8-95f9-e7e5f159521e), Policy: Example ASA5525-HA FTD,\
+  \ ConnectType: End, AccessControlRuleName: FromOutside - P2C,\
+  \ AccessControlRuleAction: Allow, Prefilter Policy: Default Prefilter\
+  \ Policy, Client: ICMP client, ApplicationProtocol: ICMP, InitiatorPackets:\
+  \ 1, ResponderPackets: 1, InitiatorBytes: 50, ResponderBytes: 50, NAPPolicy:\
+  \ Network Analysis Policy, DNSResponseType: No Error, Sinkhole: Unknown,\
+  \ URLCategory: Unknown, URLReputation: Risk unknown"
