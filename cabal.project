@@ -1,0 +1,6 @@
+packages: .
+
+source-repository-package
+    type: git
+    location: https://github.com/byteverse/bytes-patterns
+    tag: ecc01ccf778b4db74417a80dbfaf585d5e79bb01
