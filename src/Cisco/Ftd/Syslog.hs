@@ -41,7 +41,9 @@ data Attribute
   = AcPolicy {-# UNPACK #-} !Bytes
   | AccessControlRuleAction {-# UNPACK #-} !Bytes
   | AccessControlRuleName {-# UNPACK #-} !Bytes
+  | AccessControlRuleReason {-# UNPACK #-} !Bytes
   | ApplicationProtocol {-# UNPACK #-} !Bytes
+  | Client {-# UNPACK #-} !Bytes
   | ConnectionDuration {-# UNPACK #-} !Word64
   | DestinationIp !IPv4
   | DestinationPort !Word16
@@ -53,6 +55,7 @@ data Attribute
   | IngressZone {-# UNPACK #-} !Bytes
   | InitiatorBytes !Word64
   | InitiatorPackets !Word64
+  | IpsCount {-# UNPACK #-} !Word64
   | NapPolicy {-# UNPACK #-} !Bytes
   | Protocol {-# UNPACK #-} !Bytes
   | ReferencedHost {-# UNPACK #-} !Bytes
@@ -60,8 +63,11 @@ data Attribute
   | ResponderPackets !Word64
   | SourceIp !IPv4
   | SourcePort !Word16
+  | Url {-# UNPACK #-} !Bytes
   | UrlCategory {-# UNPACK #-} !Bytes
+  | UrlReputation {-# UNPACK #-} !Bytes
   | UserAgent {-# UNPACK #-} !Bytes
+  | WebApplication {-# UNPACK #-} !Bytes
   deriving stock (Eq,Show)
 
 decode :: Bytes -> Maybe Message
@@ -88,6 +94,10 @@ parserKeyValue !b0 = do
     | Patterns.isAccessControlRuleName key -> do
       txt <- Parser.takeWhile (/=0x2C)
       let !x = AccessControlRuleName txt
+      Parser.effect (Builder.push x b0)
+    | Patterns.isAccessControlRuleReason key -> do
+      txt <- Parser.takeWhile (/=0x2C)
+      let !x = AccessControlRuleReason txt
       Parser.effect (Builder.push x b0)
     | Patterns.isApplicationProtocol key -> do
       txt <- Parser.takeWhile (/=0x2C)
@@ -121,13 +131,29 @@ parserKeyValue !b0 = do
       txt <- Parser.takeWhile (/=0x2C)
       let !x = IngressZone txt
       Parser.effect (Builder.push x b0)
-    | Patterns.isUrlCategory key -> do
+    | Patterns.isURLCategory key -> do
       txt <- Parser.takeWhile (/=0x2C)
       let !x = UrlCategory txt
+      Parser.effect (Builder.push x b0)
+    | Patterns.isURLReputation key -> do
+      txt <- Parser.takeWhile (/=0x2C)
+      let !x = UrlReputation txt
       Parser.effect (Builder.push x b0)
     | Patterns.isEgressZone key -> do
       txt <- Parser.takeWhile (/=0x2C)
       let !x = EgressZone txt
+      Parser.effect (Builder.push x b0)
+    | Patterns.isClient key -> do
+      txt <- Parser.takeWhile (/=0x2C)
+      let !x = Client txt
+      Parser.effect (Builder.push x b0)
+    | Patterns.isWebApplication key -> do
+      txt <- Parser.takeWhile (/=0x2C)
+      let !x = WebApplication txt
+      Parser.effect (Builder.push x b0)
+    | Patterns.isReferencedHost key -> do
+      txt <- Parser.takeWhile (/=0x2C)
+      let !x = ReferencedHost txt
       Parser.effect (Builder.push x b0)
     | Patterns.isUserAgent key -> do
       !addr <- takeWhileUserAgent
@@ -153,6 +179,13 @@ parserKeyValue !b0 = do
       !addr <- IPv4.parserUtf8Bytes ()
       let !x = DestinationIp addr
       Parser.effect (Builder.push x b0)
+    | Patterns.isURL key -> do
+      !txt <- Parser.remaining
+      case Bytes.any (==0x20) txt of
+        True -> Parser.fail ()
+        False -> do
+          let !x = Url txt
+          Parser.effect (Builder.push x b0)
     | otherwise -> do
       Parser.skipWhile (/=0x2C)
       pure b0
