@@ -23,12 +23,14 @@ main = do
   putStrLn "Start"
   putStrLn "test1"
   test1
+  putStrLn "test3"
+  test3
   putStrLn "End"
 
 test1 :: IO ()
 test1 = case decode S.sample1 of
   Nothing -> fail "could not decode test1"
-  Just (Message _ attrs)
+  Just (Message _ _ _ attrs)
     | notElem (DestinationPort 80) attrs -> fail "bad destination port"
     | notElem (InitiatorPackets 11) attrs -> fail "bad initiator packets"
     | notElem (ResponderPackets 6) attrs -> fail "bad responder packets"
@@ -36,6 +38,13 @@ test1 = case decode S.sample1 of
     | notElem (ResponderBytes 875) attrs -> fail "bad responder bytes"
     | notElem (IngressInterface (bytes "Outside")) attrs -> fail "bad ingress interface"
     | notElem (IngressZone (bytes "My-Outside")) attrs -> fail "bad ingress zone"
+    | otherwise -> pure ()
+
+test3 :: IO ()
+test3 = case decode S.sample3 of
+  Nothing -> fail "could not decode test1"
+  Just (Message _ _ _ attrs)
+    | notElem (DestinationPort 465) attrs -> fail "bad destination port"
     | otherwise -> pure ()
 
 bytes :: String -> Bytes

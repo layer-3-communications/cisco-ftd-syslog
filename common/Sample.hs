@@ -1,6 +1,7 @@
 module Sample
   ( sample1
   , sample2
+  , sample3
   ) where
 
 import Data.Bytes (Bytes)
@@ -39,3 +40,15 @@ sample2 = Bytes.fromLatinString
   \ 1, ResponderPackets: 1, InitiatorBytes: 50, ResponderBytes: 50, NAPPolicy:\
   \ Network Analysis Policy, DNSResponseType: No Error, Sinkhole: Unknown,\
   \ URLCategory: Unknown, URLReputation: Risk unknown"
+
+sample3 :: Bytes
+sample3 = Bytes.fromLatinString
+  "<185>2020-09-16T13:33:17Z   %FTD-1-430002: DeviceUUID:\
+  \ 744c08f0-1fe4-02b7-6eaa-fe64390ba2f0, AccessControlRuleAction: Block,\
+  \ SrcIP: 192.0.2.12, DstIP: 192.0.2.118, SrcPort: 41810, DstPort: 465,\
+  \ Protocol: tcp, IngressInterface: Outside, EgressInterface: DMZ,\
+  \ IngressZone: Zone-Outside, EgressZone: Zone-DMZ, ACPolicy:\
+  \ My Policy Name, AccessControlRuleName: Default Action, Prefilter\
+  \ Policy: Foo, User: No Authentication Required, InitiatorPackets: 0,\
+  \ ResponderPackets: 0, InitiatorBytes: 0, ResponderBytes: 0, NAPPolicy:\
+  \ Balanced Security and Connectivity"

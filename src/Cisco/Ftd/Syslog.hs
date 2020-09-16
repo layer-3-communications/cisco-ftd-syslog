@@ -34,6 +34,8 @@ import qualified Data.Bytes.Parser.Unsafe as Unsafe
 
 data Message = Message
   { time :: !Chronos.Datetime
+  , severity :: !Word64
+  , number :: !Word64
   , attributes :: !(Chunks Attribute)
   }
 
@@ -78,9 +80,13 @@ parser = do
   skipSyslogPriority
   time <- getInitialDate
   Latin.skipChar1 () ' '
-  Parser.cstring () (Ptr "%FTD-1-430003: "#)
+  Parser.cstring () (Ptr "%FTD-"#)
+  severity <- Latin.decWord64 ()
+  Latin.char () '-'
+  number <- Latin.decWord64 ()
+  Latin.char2 () ':' ' '
   r <- parserKeyValue =<< Parser.effect Builder.new
-  pure Message{time,attributes=r}
+  pure Message{time,severity,number,attributes=r}
   
 parserKeyValue :: Builder s Attribute -> Parser () s (Chunks Attribute)
 parserKeyValue !b0 = do
