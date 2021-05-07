@@ -2,7 +2,7 @@
 
 ### Overvi
 This repository covers Cisco Firepower Threat Defense Syslog parsing.
-Cisco Firepower Threat Defense (FTD) is an integrated software image combining Cisco ASA and Firepower. FTD software can be managed through Cisco FMC a single management console to manage an entire platform.
+Cisco Firepower Threat Defense (FTD) is an integrated software image combining Cisco ASA and Firepower. FTD software can be managed through Cisco FMC a single management console to manage an entire platform. Currently Layer 3 Communications monitors some Cisco products with both SIEM and NPM.
 
 
 ### Technology Features
