@@ -83,6 +83,12 @@ parser = do
   time <- Latin.peek' () >>= \case
     '%' -> pure $! Chronos.timeToDatetime Chronos.epoch
     _ -> getInitialDate <* Latin.skipChar1 () ' '
+  -- Sometimes, there is only space between the timestamp and the %FTD.
+  -- But sometimes, there is a colon in the middle of the space for
+  -- no evident reason.
+  Latin.trySatisfy (== ':') >>= \case
+    False -> pure ()
+    True -> Latin.skipChar ' '
   Parser.cstring () (Ptr "%FTD-"#)
   severity <- Latin.decWord64 ()
   Latin.char () '-'
