@@ -1,6 +1,6 @@
 packages: .
 
 source-repository-package
-    type: git
-    location: https://github.com/byteverse/bytes-patterns
-    tag: ecc01ccf778b4db74417a80dbfaf585d5e79bb01
+  type: git
+  location: https://github.com/byteverse/bytes-patterns
+  tag: a95f9d453435fa21382b063790b4bce12dd00cf5

@@ -25,6 +25,8 @@ main = do
   test1
   putStrLn "test3"
   test3
+  putStrLn "test4"
+  test4
   putStrLn "End"
 
 test1 :: IO ()
@@ -42,7 +44,14 @@ test1 = case decode S.sample1 of
 
 test3 :: IO ()
 test3 = case decode S.sample3 of
-  Nothing -> fail "could not decode test1"
+  Nothing -> fail "could not decode test3"
+  Just (Message _ _ _ attrs)
+    | notElem (DestinationPort 465) attrs -> fail "bad destination port"
+    | otherwise -> pure ()
+
+test4 :: IO ()
+test4 = case decode S.sample4 of
+  Nothing -> fail "could not decode test4"
   Just (Message _ _ _ attrs)
     | notElem (DestinationPort 465) attrs -> fail "bad destination port"
     | otherwise -> pure ()

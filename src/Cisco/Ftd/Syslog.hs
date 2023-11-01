@@ -78,8 +78,11 @@ decode b = Parser.parseBytesMaybe parser b
 parser :: Parser () s Message
 parser = do
   skipSyslogPriority
-  time <- getInitialDate
-  Latin.skipChar1 () ' '
+  -- Sometimes, there is no datetime after the priority. In this case,
+  -- we set the timestamp to the UNIX epoch.
+  time <- Latin.peek' () >>= \case
+    '%' -> pure $! Chronos.timeToDatetime Chronos.epoch
+    _ -> getInitialDate <* Latin.skipChar1 () ' '
   Parser.cstring () (Ptr "%FTD-"#)
   severity <- Latin.decWord64 ()
   Latin.char () '-'
