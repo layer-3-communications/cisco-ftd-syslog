@@ -3,6 +3,7 @@ module Sample
   , sample2
   , sample3
   , sample4
+  , sample5
   ) where
 
 import Data.Bytes (Bytes)
@@ -65,3 +66,6 @@ sample4 = Bytes.fromLatinString
   \ Policy: Foo, User: No Authentication Required, InitiatorPackets: 0,\
   \ ResponderPackets: 0, InitiatorBytes: 0, ResponderBytes: 0, NAPPolicy:\
   \ Balanced Security and Connectivity"
+
+sample5 :: Bytes
+sample5 = Bytes.fromLatinString "  %FTD-7-430002: EventPriority: Low"

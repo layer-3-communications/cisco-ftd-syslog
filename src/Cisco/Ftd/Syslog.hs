@@ -78,6 +78,7 @@ decode b = Parser.parseBytesMaybe parser b
 parser :: Parser () s Message
 parser = do
   skipSyslogPriority
+  Latin.skipWhile (==' ')
   -- Sometimes, there is no datetime after the priority. In this case,
   -- we set the timestamp to the UNIX epoch.
   time <- Latin.peek' () >>= \case

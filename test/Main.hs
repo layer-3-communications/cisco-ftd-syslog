@@ -27,6 +27,8 @@ main = do
   test3
   putStrLn "test4"
   test4
+  putStrLn "test5"
+  test5
   putStrLn "End"
 
 test1 :: IO ()
@@ -55,6 +57,11 @@ test4 = case decode S.sample4 of
   Just (Message _ _ _ attrs)
     | notElem (DestinationPort 465) attrs -> fail "bad destination port"
     | otherwise -> pure ()
+
+test5 :: IO ()
+test5 = case decode S.sample4 of
+  Nothing -> fail "could not decode test5"
+  Just _ -> pure ()
 
 bytes :: String -> Bytes
 bytes s = let b = pack s in Bytes b 0 (PM.sizeofByteArray b)
