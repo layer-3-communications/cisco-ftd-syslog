@@ -4,6 +4,7 @@ module Sample
   , sample3
   , sample4
   , sample5
+  , sample6
   ) where
 
 import Data.Bytes (Bytes)
@@ -69,3 +70,6 @@ sample4 = Bytes.fromLatinString
 
 sample5 :: Bytes
 sample5 = Bytes.fromLatinString "  %FTD-7-430002: EventPriority: Low"
+
+sample6 :: Bytes
+sample6 = Bytes.fromLatinString "<185>2024-01-31T23:57:19Z  : %FTD-1-430003: EventPriority: Low"
