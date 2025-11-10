@@ -5,6 +5,7 @@ module Sample
   , sample4
   , sample5
   , sample6
+  , sample7
   ) where
 
 import Data.Bytes (Bytes)
@@ -73,3 +74,17 @@ sample5 = Bytes.fromLatinString "  %FTD-7-430002: EventPriority: Low"
 
 sample6 :: Bytes
 sample6 = Bytes.fromLatinString "<185>2024-01-31T23:57:19Z  : %FTD-1-430003: EventPriority: Low"
+
+sample7 :: Bytes
+sample7 = Bytes.fromLatinString
+  "<185>2025-09-28T05:10:35Z: %FTD-1-430002: EventPriority: Low,\
+  \ DeviceUUID: d587bac1-8a12-01fd-bac0-fe01de071596, InstanceID: 1,\
+  \ FirstPacketSecond: 2025-09-28T05:10:35Z, ConnectionID: 19976,\
+  \ AccessControlRuleAction: Block, SrcIP: 192.0.2.17,\
+  \ DstIP: 192.0.2.66, SrcPort: 50988, DstPort: 1237, Protocol: udp,\
+  \ IngressInterface: Outside, EgressInterface: VX-DMZ,\
+  \ IngressZone: FOO-Outside, EgressZone: FOO-VX-DMZ,\
+  \ IngressVRF: Global, EgressVRF: Global, ACPolicy: FOO ASA5525-HA FTD,\
+  \ AccessControlRuleName: Default Action, Prefilter Policy: FOO,\
+  \ InitiatorPackets: 0, ResponderPackets: 0, InitiatorBytes: 0,\
+  \ ResponderBytes: 0, NAPPolicy: Network Analysis Policy, ClientAppDetector: AppID"

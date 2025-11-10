@@ -83,7 +83,7 @@ parser = do
   -- we set the timestamp to the UNIX epoch.
   time <- Latin.peek' () >>= \case
     '%' -> pure $! Chronos.timeToDatetime Chronos.epoch
-    _ -> getInitialDate <* Latin.skipChar1 () ' '
+    _ -> getInitialDate <* Latin.trySatisfy (==':') <* Latin.skipChar1 () ' '
   -- Sometimes, there is only space between the timestamp and the %FTD.
   -- But sometimes, there is a colon in the middle of the space for
   -- no evident reason.

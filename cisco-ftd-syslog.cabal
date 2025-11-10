@@ -22,7 +22,7 @@ library
     , bytesmith >= 0.3.7 && <0.4
     , byteslice >= 0.2 && <0.3
     , ip >=1.7 && <1.8
-    , primitive >= 0.7 && <0.8
+    , primitive >= 0.7
     , chronos >= 1.1.1
     , bytes-patterns <0.2
   hs-source-dirs: src
