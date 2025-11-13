@@ -6,6 +6,7 @@ module Sample
   , sample5
   , sample6
   , sample7
+  , sample8
   ) where
 
 import Data.Bytes (Bytes)
@@ -88,3 +89,25 @@ sample7 = Bytes.fromLatinString
   \ AccessControlRuleName: Default Action, Prefilter Policy: FOO,\
   \ InitiatorPackets: 0, ResponderPackets: 0, InitiatorBytes: 0,\
   \ ResponderBytes: 0, NAPPolicy: Network Analysis Policy, ClientAppDetector: AppID"
+
+sample8 :: Bytes
+sample8 = Bytes.fromLatinString
+  "<185>2025-11-12T16:54:25Z: %FTD-1-430003: EventPriority: Low,\
+  \ DeviceUUID: d587bac1-8a12-01fd-bac0-fe01de071596, InstanceID: 3,\
+  \ FirstPacketSecond: 2025-11-12T16:53:22Z, ConnectionID: 39520,\
+  \ AccessControlRuleAction: Allow, SrcIP: 192.0.2.229,\
+  \ DstIP: 192.0.2.253, SrcPort: 3784, DstPort: 80, Protocol: tcp,\
+  \ IngressInterface: Outside, EgressInterface: VX-DMZ,\
+  \ IngressZone: CFOO-Outside, EgressZone: CFOO-VX-DMZ, IngressVRF: Global,\
+  \ EgressVRF: Global, ACPolicy: CFOO FPR2120-HA FTD,\
+  \ AccessControlRuleName: FromOutside - P2C, Prefilter Policy: CFOO,\
+  \ UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\
+  \ AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0\
+  \ Safari/537.36, Client: Chrome, ClientVersion: 105.0.0.0,\
+  \ ApplicationProtocol: HTTP, WebApplication: Web Browsing,\
+  \ ConnectionDuration: 63, InitiatorPackets: 6, ResponderPackets: 6,\
+  \ InitiatorBytes: 1376, ResponderBytes: 4716,\
+  \ NAPPolicy: Network Analysis Policy, ReferencedHost: foo.example.com,\
+  \ URL: http://foo.example.com/test.aspx, NAT_InitiatorPort: 3784,\
+  \ NAT_ResponderPort: 80, NAT_InitiatorIP: 104.165.168.33,\
+  \ NAT_ResponderIP: 192.0.2.23, ClientAppDetector: AppID"

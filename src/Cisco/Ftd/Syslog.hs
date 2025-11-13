@@ -196,12 +196,9 @@ parserKeyValue !b0 = do
       let !x = DestinationIp addr
       Parser.effect (Builder.push x b0)
     | Patterns.isURL key -> do
-      !txt <- Parser.remaining
-      case Bytes.any (==0x20) txt of
-        True -> Parser.fail ()
-        False -> do
-          let !x = Url txt
-          Parser.effect (Builder.push x b0)
+      !txt <- takeWhileUrl
+      let !x = Url txt
+      Parser.effect (Builder.push x b0)
     | otherwise -> do
       Parser.skipWhile (/=0x2C)
       pure b0
@@ -210,6 +207,23 @@ parserKeyValue !b0 = do
     False -> do
       Latin.char2 () ',' ' '
       parserKeyValue b1 
+
+takeWhileUrl :: Parser () s Bytes
+takeWhileUrl = do
+  start <- Unsafe.cursor
+  let go = do
+        txt <- Latin.skipWhile (/=',')
+        Latin.trySatisfy (==',') >>= \case
+          False -> do -- this means that we reached end of input
+            pure ()
+          True -> Latin.trySatisfy (==' ') >>= \case
+            True -> do -- the sequence [comma, space] is treated as terminating the url
+              Unsafe.unconsume 2
+            False -> go
+  go
+  end <- Unsafe.cursor
+  arr <- Unsafe.expose
+  pure $! Bytes arr start (end - start)
 
 -- Parsing the User Agent is terribly because user agents often
 -- have commas in them. So, we use a terrible hack where we look

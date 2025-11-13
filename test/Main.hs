@@ -33,6 +33,8 @@ main = do
   test6
   putStrLn "test7"
   test7
+  putStrLn "test8"
+  test8
   putStrLn "End"
 
 test1 :: IO ()
@@ -75,6 +77,11 @@ test6 = case decode S.sample6 of
 test7 :: IO ()
 test7 = case decode S.sample7 of
   Nothing -> fail "could not decode test7"
+  Just _ -> pure ()
+
+test8 :: IO ()
+test8 = case decode S.sample8 of
+  Nothing -> fail "could not decode test8"
   Just _ -> pure ()
 
 bytes :: String -> Bytes
